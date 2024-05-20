@@ -1,0 +1,50 @@
+version: "3.8"
+
+services:
+  dev_db:
+    build:
+      context: .
+      dockerfile: Dockerfile.mysql
+    container_name: dev_db_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "${MYSQL_PORT}:${MYSQL_PORT}"
+    volumes:
+      - db_data:/var/lib/mysql
+
+  dev_spring-boot-app:
+    build:
+      context: .
+      dockerfile: Dockerfile.spring.prod
+    container_name: dev_spring_boot_app
+    environment:
+      MYSQL_HOST: ${MYSQL_HOST}
+      MYSQL_PORT: ${MYSQL_PORT}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "8080:8080"
+    depends_on:
+      - dev_db
+
+  dev_angular_app:
+    build:
+      context: .
+      dockerfile: Dockerfile.angular.dev
+    container_name: dev_angular_app
+    ports:
+      - "4200:4200"
+    working_dir: /app
+    volumes:
+      - ./iot-manager-ui:/app
+    command: ["npm", "run", "start"]
+    depends_on:
+      - dev_spring-boot-app
+
+volumes:
+  db_data:

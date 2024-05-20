@@ -1,0 +1,21 @@
+## Configuração do build do Angular
+FROM node:18 as node
+
+WORKDIR /app
+COPY './iot-manager-ui' .
+
+RUN npm i
+
+RUN npm run build --prod
+
+
+# ## Configurando nginx para rodar aplicação.
+FROM nginx:latest
+
+# ENTRYPOINT [ "bash" ]
+# entrypoint loop infinito
+
+RUN rm -rf /usr/share/nginx/html/*
+
+# CMD ["nginx", "-g", "daemon off;"]
+COPY --from=node /app/dist/iot-manager-ui /usr/share/nginx/html

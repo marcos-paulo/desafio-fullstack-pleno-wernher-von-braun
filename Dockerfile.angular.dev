@@ -1,0 +1,7 @@
+# Use a imagem oficial do Node.js como base
+FROM node:18 as node
+
+# Defina o diretório de trabalho como o diretório da aplicação Angular
+WORKDIR /app
+
+EXPOSE 4200
