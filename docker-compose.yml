@@ -22,7 +22,7 @@ services:
       dockerfile: Dockerfile.spring.prod
     container_name: spring-boot-app
     environment:
-      MYSQL_HOST: ${MYSQL_HOST}
+      MYSQL_HOST: dev_db_mysql
       MYSQL_PORT: ${MYSQL_PORT}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_USER: ${MYSQL_USER}

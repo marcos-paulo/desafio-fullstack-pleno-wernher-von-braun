@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class IotmanagerApiApplication {
+public class IotManagerApiApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(IotmanagerApiApplication.class, args);
+		SpringApplication.run(IotManagerApiApplication.class, args);
 	}
 
 }

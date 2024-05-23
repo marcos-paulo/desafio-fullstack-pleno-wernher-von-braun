@@ -14,21 +14,24 @@ services:
     ports:
       - "${MYSQL_PORT}:${MYSQL_PORT}"
     volumes:
-      - db_data:/var/lib/mysql
+      - ./db_data:/var/lib/mysql
 
   dev_spring-boot-app:
     build:
       context: .
-      dockerfile: Dockerfile.spring.prod
+      dockerfile: Dockerfile.spring.dev
     container_name: dev_spring_boot_app
     environment:
-      MYSQL_HOST: ${MYSQL_HOST}
+      MYSQL_HOST: dev_db_mysql
       MYSQL_PORT: ${MYSQL_PORT}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     ports:
       - "8080:8080"
+    volumes:
+      - ./iot-manager-api:/app
+    command: ["mvn", "spring-boot:run"]
     depends_on:
       - dev_db
 
@@ -46,5 +49,3 @@ services:
     depends_on:
       - dev_spring-boot-app
 
-volumes:
-  db_data:
