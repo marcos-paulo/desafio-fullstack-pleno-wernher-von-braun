@@ -1,11 +1,14 @@
 package com.marcos.iotmanager.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
 
@@ -23,9 +26,10 @@ public class CommandDescription {
 
   private String description;
 
-  // @OneToOne()
-  // @JoinColumn(name = "command_description_id")
-  // private Command command;
+
+  @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+  @JoinColumn(name = "fk_command_id")
+  private Command command;
 
   private String result;
 

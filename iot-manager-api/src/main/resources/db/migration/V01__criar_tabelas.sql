@@ -1,32 +1,39 @@
-CREATE TABLE device (
-    device_id INT AUTO_INCREMENT PRIMARY KEY,
-    identifier VARCHAR(255) UNIQUE NOT NULL,
-    description TEXT,
-    manufacturer VARCHAR(255),
-    url VARCHAR(255)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+CREATE TABLE `device` (
+  `device_id` BIGINT NOT NULL AUTO_INCREMENT,
+  `identifier` VARCHAR(255) DEFAULT NULL UNIQUE,
+  `description` VARCHAR(255) DEFAULT NULL,
+  `manufacturer` VARCHAR(255) DEFAULT NULL,
+  `url` VARCHAR(255) DEFAULT NULL,
+  PRIMARY KEY (`device_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE TABLE command_description (
-    command_description_id INT AUTO_INCREMENT PRIMARY KEY,
-    operation VARCHAR(255) NOT NULL,
-    description TEXT,
-    result TEXT,
-    format TEXT,
-    fk_device_id INT,
-    FOREIGN KEY (fk_device_id) REFERENCES device(device_id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+CREATE TABLE `command` (
+  `command_id` bigint NOT NULL AUTO_INCREMENT,
+  `command` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`command_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE TABLE command (
-    command_id INT AUTO_INCREMENT PRIMARY KEY,
-    command VARCHAR(255) NOT NULL,
-    fk_command_description_id INT,
-    FOREIGN KEY (fk_command_description_id) REFERENCES command_description(command_description_id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+CREATE TABLE `command_description` (
+  `command_description_id` bigint NOT NULL AUTO_INCREMENT,
+  `operation` varchar(255) DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `result` varchar(255) DEFAULT NULL,
+  `format` varchar(255) DEFAULT NULL,
+  `fk_device_id` bigint DEFAULT NULL,
+  `fk_command_id` bigint DEFAULT NULL,
+  PRIMARY KEY (`command_description_id`),
+  UNIQUE KEY (`fk_command_id`),
+  KEY (`fk_device_id`),
+  CONSTRAINT FOREIGN KEY (`fk_command_id`) REFERENCES `command` (`command_id`),
+  CONSTRAINT FOREIGN KEY (`fk_device_id`) REFERENCES `device` (`device_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE TABLE parameter (
-    parameter_id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    description TEXT,
-    fk_command_id INT,
-    FOREIGN KEY (fk_command_id) REFERENCES command(command_id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+CREATE TABLE `parameter` (
+  `parameter_id` bigint NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `fk_command_id` bigint DEFAULT NULL,
+  PRIMARY KEY (`parameter_id`),
+  KEY (`fk_command_id`),
+  CONSTRAINT FOREIGN KEY (`fk_command_id`) REFERENCES `command` (`command_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

@@ -36,6 +36,8 @@ public class DeviceResource {
   @Autowired
   private MessageSource messageSource;
 
+
+
   @GetMapping
   public ResponseEntity<?> getDevices() {
     List<Device> devices = deviceRepository.findAll();
@@ -49,24 +51,38 @@ public class DeviceResource {
   @PostMapping()
   @ResponseStatus(HttpStatus.CREATED)
   public void createDevice(@RequestBody Device entity, HttpServletResponse response) {
+    Optional<Device> responseDevice = deviceRepository.findById(id);
+
+
     Device device = deviceRepository.save(entity);
     publisher.publishEvent(new RecursoCriadoEvent(this, response, device.getDeviceId()));
   }
 
   @GetMapping("/{id}")
   public ResponseEntity<?> getDeviceById(@PathVariable Long id) {
-    String mensagemUsuario = messageSource.getMessage("mensagem.dispositivo.nao.encontrado", null,
-        LocaleContextHolder.getLocale());
     Optional<Device> responseDevice = deviceRepository.findById(id);
     return responseDevice.isPresent() ? ResponseEntity.ok(responseDevice.get())
-        : ResponseEntity.status(HttpStatus.NOT_FOUND).body(mensagemUsuario);
+        : ResponseEntity.status(HttpStatus.NOT_FOUND)
+            .body(getMensagemUsuario("mensagem.dispositivo.nao.encontrado"));
   }
 
   @DeleteMapping("/{id}")
-  @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void deleteDevice(@PathVariable Long id) {
-    deviceRepository.findById(id)
-        .orElseThrow(() -> new IllegalArgumentException("Device not found"));
-    deviceRepository.deleteById(id);
+  public ResponseEntity<?> deleteDevice(@PathVariable Long id) {
+    Optional<Device> device = deviceRepository.findById(id);
+    ResponseEntity<?> response;
+
+    if (device.isPresent()) {
+      deviceRepository.deleteById(id);
+      // deviceRepository.deleteByParentId(device.get().getDeviceId());
+      return ResponseEntity.status(HttpStatus.NO_CONTENT)
+          .body(HttpStatus.NO_CONTENT.getReasonPhrase());
+    } else {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND)
+          .body(getMensagemUsuario("mensagem.dispositivo.nao.encontrado"));
+    }
+  }
+
+  private String getMensagemUsuario(String mensagem) {
+    return messageSource.getMessage(mensagem, null, LocaleContextHolder.getLocale());
   }
 }

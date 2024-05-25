@@ -3,7 +3,7 @@
 // import org.apache.commons.net.telnet.TelnetClient;
 
 // public class TelnetExample {
-// public static void main(String[] args) {
+// public static void m a i n(String[] args) {
 // // Endereço IP e porta do dispositivo Telnet
 // String host = "endereco_ip_do_dispositivo";
 // int port = 23; // Porta Telnet padrão

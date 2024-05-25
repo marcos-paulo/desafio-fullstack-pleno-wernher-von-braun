@@ -29,7 +29,7 @@ public class Device {
 
   private String url;
 
-  @OneToMany(cascade = CascadeType.ALL)
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
   @JoinColumn(name = "fk_device_id")
   private List<CommandDescription> commands;
 }
