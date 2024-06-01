@@ -1,0 +1,32 @@
+# Use a imagem do Maven para construir a aplicação
+FROM maven:3.8.5-openjdk-17 AS build
+
+# Navegue até o diretório da aplicação
+WORKDIR /usr/src/app
+
+# COPY './.m2' /root/.m2
+# Copie apenas o arquivo pom.xml e baixe as dependências do Maven
+COPY './iot-manager-api/pom.xml' /usr/src/app/
+# # Agora copie o código-fonte para o contêiner
+COPY "./iot-manager-api/src" /usr/src/app/src
+# RUN mvn dependency:go-offline
+
+RUN mvn clean package -DskipTests \
+  && \
+  mkdir -p /app \
+  && \
+  find /usr/src/app/target -type f -name "*.jar" -exec cp {} /app \; 
+
+
+# entrypoint de loop para manter o contêiner em execução
+# ENTRYPOINT [ "tail", "-f", "/dev/null" ]
+
+# Use uma imagem do JDK para a execução da aplicação
+FROM openjdk:17-jdk-slim
+
+# Copie o arquivo JAR compilado do estágio anterior
+COPY --from=build /app/*.jar /usr/app/
+
+# encontrar o primeiro arquivo jar no diretório e executá-lo
+ENTRYPOINT ["sh", "-c", "java -jar /usr/app/*.jar"]
+

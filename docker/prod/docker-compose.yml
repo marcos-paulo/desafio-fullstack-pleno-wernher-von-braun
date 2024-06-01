@@ -1,0 +1,54 @@
+# version: "3.8"
+
+services:
+  db:
+    build:
+      context: ./../../
+      dockerfile: ./docker/Dockerfile.mysql
+    container_name: db_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "${MYSQL_PORT}:${MYSQL_PORT}"
+    volumes:
+      - db_data:/var/lib/mysql
+
+  spring_boot_app:
+    build:
+      context: ./../../
+      dockerfile: ./docker/prod/Dockerfile.spring
+      args:
+        MYSQL_HOST: db_mysql
+        MYSQL_PORT: ${MYSQL_PORT}
+        MYSQL_DATABASE: ${MYSQL_DATABASE}
+        MYSQL_USER: ${MYSQL_USER}
+        MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    container_name: spring_boot_app
+    environment:
+      MYSQL_HOST: db_mysql
+      MYSQL_PORT: ${MYSQL_PORT}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - ../../.m2:/root/.m2
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+
+  angular_app:
+    build:
+      context: ./../../
+      dockerfile: ./docker/prod/Dockerfile.angular
+    container_name: angular_app
+    ports:
+      - "8081:80"
+    depends_on:
+      - spring_boot_app
+
+volumes:
+  db_data:

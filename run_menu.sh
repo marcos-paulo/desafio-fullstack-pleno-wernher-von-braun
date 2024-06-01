@@ -4,6 +4,7 @@
 # lista_menu - variável que armazena a lista de itens do menu
 # menu_selecionado - variável que armazena o item selecionado pelo usuário para ser o item que ja vem selecionado quando o menu é aberto
 # opcao_escolhida - variável que armazena a opção escolhida pelo usuário
+# titulo_menu - variável que armazena o título do menu
 
 function print_highlighted_line() {
   local text="$1"
@@ -37,7 +38,12 @@ function mostrar_menu() {
       item_selecionado=${lista_menu[$indice]}
     fi
 
-    tput cuu ${#lista_menu[@]}
+    # Move o cursor para cima n linhas (onde n é o tamanho da lista de itens do menu + 1 para o título do menu)
+    tput cuu $((${#lista_menu[@]} + 1))
+
+    # Imprime o título do menu
+    echo -e "\e[1m$titulo_menu\e[0m"
+
     local i=0
     for item in ${lista_menu[@]}; do
       if [ "$item" = "$item_selecionado" ]; then

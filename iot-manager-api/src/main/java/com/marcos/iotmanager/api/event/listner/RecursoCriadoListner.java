@@ -18,6 +18,7 @@ public class RecursoCriadoListner implements ApplicationListener<RecursoCriadoEv
     URI uri = ServletUriComponentsBuilder.fromCurrentRequestUri().path("/{id}").buildAndExpand(id)
         .toUri();
     response.setHeader("Location", uri.toASCIIString());
+    response.setStatus(HttpServletResponse.SC_CREATED);
   }
 
 }

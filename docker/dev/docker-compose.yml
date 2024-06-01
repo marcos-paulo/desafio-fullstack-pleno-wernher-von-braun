@@ -1,0 +1,52 @@
+# segundo a documentacoa do docker compose, version é obsoleto
+# version: "3.8"
+# o nome do projeto pode ser em uma variavel de ambiente
+services:
+  db:
+    build:
+      context: ./../../
+      dockerfile: ./docker/Dockerfile.mysql
+    container_name: db_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "${MYSQL_PORT}:${MYSQL_PORT}"
+    volumes:
+      - ./../../db_data:/var/lib/mysql
+
+  spring-boot-app:
+    build:
+      context: ./../../
+      dockerfile: ./docker/dev/Dockerfile.spring
+    container_name: spring_boot_app
+    environment:
+      MYSQL_HOST: db_mysql
+      MYSQL_PORT: ${MYSQL_PORT}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "8080:8080"
+    volumes:
+      - ../../.m2:/root/.m2
+      - ../../iot-manager-api:/app
+    command: ["mvn", "spring-boot:run"]
+    depends_on:
+      - db
+
+  angular_app:
+    build:
+      context: ./../../
+      dockerfile: ./docker/dev/Dockerfile.angular
+    container_name: angular_app
+    ports:
+      - "4200:4200"
+    working_dir: /app
+    volumes:
+      - ../../iot-manager-ui:/app
+    command: ["npm", "run", "start"]
+    depends_on:
+      - spring-boot-app

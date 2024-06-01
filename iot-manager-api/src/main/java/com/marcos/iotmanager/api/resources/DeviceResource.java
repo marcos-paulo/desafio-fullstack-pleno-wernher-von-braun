@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import com.marcos.iotmanager.api.event.RecursoCriadoEvent;
+import com.marcos.iotmanager.api.event.RecursoDuplicadoEvent;
 import com.marcos.iotmanager.api.model.Device;
 import com.marcos.iotmanager.api.repository.DeviceRepository;
 import jakarta.servlet.http.HttpServletResponse;
@@ -36,8 +36,6 @@ public class DeviceResource {
   @Autowired
   private MessageSource messageSource;
 
-
-
   @GetMapping
   public ResponseEntity<?> getDevices() {
     List<Device> devices = deviceRepository.findAll();
@@ -49,10 +47,13 @@ public class DeviceResource {
   }
 
   @PostMapping()
-  @ResponseStatus(HttpStatus.CREATED)
   public void createDevice(@RequestBody Device entity, HttpServletResponse response) {
-    Optional<Device> responseDevice = deviceRepository.findById(id);
+    Optional<Device> responseDevice = deviceRepository.findByIdentifier(entity.getIdentifier());
 
+    if (responseDevice.isPresent()) {
+      this.publisher.publishEvent(new RecursoDuplicadoEvent(this, response));
+      return;
+    }
 
     Device device = deviceRepository.save(entity);
     publisher.publishEvent(new RecursoCriadoEvent(this, response, device.getDeviceId()));
@@ -73,7 +74,6 @@ public class DeviceResource {
 
     if (device.isPresent()) {
       deviceRepository.deleteById(id);
-      // deviceRepository.deleteByParentId(device.get().getDeviceId());
       return ResponseEntity.status(HttpStatus.NO_CONTENT)
           .body(HttpStatus.NO_CONTENT.getReasonPhrase());
     } else {
